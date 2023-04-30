@@ -20,29 +20,34 @@ function markup(items) {
 }
 
 function renderList() {
-  gallery(galleryItems);
   galleryList.innerHTML = gallery(galleryItems).join("");
 }
 renderList();
 
 let instance;
 
-function zommIn(e) {
+function zoomIn(e) {
   e.preventDefault();
-  if (e.target.classList.contains("gallery__image")) {
+  if (e.target.nodeName === "IMG") {
     const target = e.target.dataset.source;
-    instance = basicLightbox.create(`
-         <img src="${target}" width="800" height="600">
-    `);
+    instance = basicLightbox.create(
+      `
+      <img src="${target}" width="800" height="600">
+    `,
+      {
+        onShow: () => window.addEventListener("keydown", zoomOut),
+        onClose: () => window.removeEventListener("keydown", zoomOut),
+      }
+    );
     instance.show();
   }
 }
 
 function zoomOut(e) {
-  if (e.key === "Escape") {
+  if (e.key === "Escape" && instance) {
     instance.close();
   }
 }
 
-galleryList.addEventListener("click", zommIn);
-galleryList.addEventListener("keydown", zoomOut);
+window.document.addEventListener("click", zoomIn);
+window.document.addEventListener("keydown", zoomOut);
